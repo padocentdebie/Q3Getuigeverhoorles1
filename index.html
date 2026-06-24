@@ -77,8 +77,11 @@
                             <p class="text-xs text-slate-400">Afkomst: Ethiopië (spreekt gebroken Nederlands)</p>
                         </div>
                     </div>
-                    <!-- Geluidsknopje voor indicatie -->
-                    <span class="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded border border-slate-650">🔊 Audio Actief</span>
+                    <!-- Snelheidsregelaar voor de audio (TTS) -->
+                    <div class="flex items-center gap-2 text-xs bg-slate-700 text-slate-300 px-2 py-1 rounded border border-slate-600">
+                        <span class="cursor-help" title="Pas de spreeksnelheid van Yosef aan">🔊 Tempo:</span>
+                        <input type="range" id="tts-rate" min="0.5" max="1.8" step="0.1" value="1.1" class="w-16 h-1 bg-slate-500 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                    </div>
                 </div>
                 <!-- Chatbox Berichten -->
                 <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-3 text-sm">
@@ -158,6 +161,7 @@
         const statementForm = document.getElementById('statement-form');
         const statementText = document.getElementById('statement-text');
         const liveFeed = document.getElementById('live-feed');
+        const ttsRateInput = document.getElementById('tts-rate');
 
         // 1. LOGIN LOGICA
         loginForm.addEventListener('submit', (e) => {
@@ -171,22 +175,39 @@
                 loginScreen.classList.add('hidden');
                 appScreen.classList.remove('hidden');
                 
-                // Spreek de welkomsttekst uit zodra de student inlogt (browsers vereisen interactie voor audio)
+                // OC-MELDINGAANMAAK EN INJECTIE
+                const ocBubble = document.createElement('div');
+                ocBubble.className = "bg-slate-900/80 p-3 rounded-lg max-w-[90%] border border-amber-500/45 text-xs shadow-md mb-2";
+                ocBubble.innerHTML = `
+                    <p class="text-amber-400 font-bold uppercase tracking-wide flex items-center gap-1 mb-1">
+                        <span>🚨 OC (Operationeel Centrum)</span>
+                        <span class="text-slate-500 font-normal not-italic ml-auto">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} u</span>
+                    </p>
+                    <p class="text-slate-300 leading-relaxed">
+                        <strong>MELDING DISPATCH:</strong> Alle eenheden Amersfoort/Leusden. Ga met spoed naar de <strong>Loes van Overeemlaan</strong> ter hoogte van <strong>halte Schietbaan</strong>. 
+                        Betreft een heterdaad diefstal met geweld in Veolis bus lijn 58. Slachtoffer is een hoogzwangere vrouw die hard ten val is gekomen. 
+                        Verdachten te voet gevlucht richting het bosgebied. Getuige genaamd <em>Yosef</em> is ter plaatse veiliggesteld. Start direct het getuigenverhoor op.
+                    </p>
+                `;
+                // Voeg de OC melding toe aan het begin van het chatoverzicht (boven Yosef)
+                chatMessages.insertBefore(ocBubble, chatMessages.firstChild);
+
+                // Spreek de welkomsttekst uit zodra de student inlogt
                 spreekTekstUit("Hallo... ik ben Yosef. Ik was in die grote bus... Veolis lijn 58. Heel erg schrikken bij die... ja, die Schietbaan. Wat jij willen weten van mij?");
             }
         });
 
         // TEXT TO SPEECH FUNCTIE
         function spreekTekstUit(tekst) {
-            // Controleer of de browser spraak ondersteunt
             if ('speechSynthesis' in window) {
-                // Stop eventuele lopende spraak direct om overlapping te voorkomen
                 window.speechSynthesis.cancel();
 
                 const utterance = new SpeechSynthesisUtterance(tekst);
-                utterance.lang = 'nl-NL'; // Nederlandse synthesizer stem
-                utterance.pitch = 1.0;    // Toonhoogte (1.0 is standaard)
-                utterance.rate = 0.95;    // Ietsjes langzamer praten voor het effect van gebroken Nederlands
+                utterance.lang = 'nl-NL';
+                utterance.pitch = 1.0;    
+                
+                // Gebruik de actuele waarde van de slider (als deze bestaat, anders fallback naar vlottere default 1.1)
+                utterance.rate = ttsRateInput ? parseFloat(ttsRateInput.value) : 1.1; 
 
                 window.speechSynthesis.speak(utterance);
             }
@@ -206,7 +227,7 @@
                 return "Ja! Twee jongens! Andere jongen was klein, beetje dikker. Hij had wit petje op en blauwe spijkerbroek. Hij stood bij deur te roepen: 'Snel, snel!'.";
             }
             if (v.includes('gebeurd') || v.includes('voorval') || v.includes('wat is er') || v.includes('gezien')) {
-                return "Ik zie die lange jongen trekken aan tas van een mevrouw. Heel hard! Die mevrouw heeft... ja... heel grote dikke buik met kindje erin. Zij valt hard op de vloer van bus, heel hard huilen en roepen voor haar baby! Hij pakt tas en rent weg als bus stopt.";
+                return "Ik zie die lange jongen trekken aan tas van een mevrouw. Heel hard! Die mevrouw heeft... ja... heel grote dikke buik met kindje erin. Zij valt hard op de vloer van bus, heel hard huilen en roepen voor haar baby! Hij pakt tas Strain en rent weg als bus stopt.";
             }
             if (v.includes('waar') || v.includes('locatie') || v.includes('halte') || v.includes('bus') || v.includes('leusden')) {
                 return "In de Veolis bus, lijn 58! Bus stopt bij halte Schietbaan op die weg... Loes van Overeemlaan. Daar rende ze direct de bus uit, zo het bos in bij de schietbaan.";
