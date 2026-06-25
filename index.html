@@ -1,497 +1,29 @@
-<!DOCTYPE html>
-<html lang="nl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Getuigen- & Verdachteverhoor Simulator - Politieacademie</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Voorkomt scroll-jumping in de live-feeds */
-        .feed-container {
-            height: 65vh;
-            overflow-y: auto;
-            scroll-behavior: smooth;
-        }
-        .suspect-card.selected {
-            border-color: #3b82f6;
-            background-color: rgba(59, 130, 246, 0.2);
-        }
-    </style>
-</head>
-<body class="bg-slate-900 text-slate-100 min-h-screen font-sans">
-
-    <div id="login-screen" class="flex items-center justify-center min-h-screen px-4">
-        <div class="bg-slate-800 p-8 rounded-lg shadow-xl w-full max-w-md border border-slate-700">
-            <h1 class="text-2xl font-bold text-center text-blue-400 mb-6">Verhoor Simulator Login</h1>
-            <form id="login-form" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium mb-1">Naam Student</label>
-                    <input type="text" id="student-name" required class="w-full p-2.5 rounded bg-slate-700 border border-slate-600 focus:outline-none focus:border-blue-500 text-white">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Klas</label>
-                    <select id="student-class" required class="w-full p-2.5 rounded bg-slate-700 border border-slate-600 focus:outline-none focus:border-blue-500 text-white">
-                        <option value="" disabled selected>Kies je klas...</option>
-                        <option value="Alpha">Alpha</option>
-                        <option value="Bravo">Bravo</option>
-                        <option value="Charlie">Charlie</option>
-                        <option value="Delta">Delta</option>
-                        <option value="Echo">Echo</option>
-                        <option value="Foxtrot">Foxtrot</option>
-                        <option value="Golf">Golf</option>
-                        <option value="Hotel">Hotel</option>
-                        <option value="Juliet">Juliet</option>
-                        <option value="Kilo">Kilo</option>
-                        <option value="Lima">Lima</option>
-                        <option value="Mike">Mike</option>
-                    </select>
-                </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 py-2.5 rounded font-semibold transition mt-2">Start Verhoor</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="app-screen" class="hidden h-screen flex flex-col">
-        <header class="bg-slate-800 p-4 border-b border-slate-700 flex justify-between items-center shadow-md">
-            <div>
-                <h1 class="text-xl font-bold text-blue-400">Casus: Incident Leusden (Lijn 58)</h1>
-                <p class="text-xs text-slate-400">Fase 1: Getuigenverhoor Yosef | Locatie: Loes van Overeemlaan</p>
-            </div>
-            <div class="text-sm bg-slate-700 px-3 py-1.5 rounded border border-slate-600">
-                Gebruiker: <span class="user-display font-semibold text-emerald-400"></span> 
-                (<span class="class-display font-semibold text-emerald-400"></span>)
-            </div>
-        </header>
-
-        <div class="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 overflow-hidden">
-            <div class="bg-slate-800 rounded-lg border border-slate-700 flex flex-col h-full shadow-lg">
-                <div class="p-3 border-b border-slate-700 bg-slate-750 flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
-                        <div>
-                            <h2 class="font-bold text-sm">Yosef (Getuige)</h2>
-                            <p class="text-xs text-slate-400">Afkomst: Ethiopië (spreekt gebroken Nederlands)</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2 text-xs bg-slate-700 text-slate-300 px-2 py-1 rounded border border-slate-600">
-                        <span class="cursor-help" title="Pas de spreeksnelheid van Yosef aan">🔊 Tempo:</span>
-                        <input type="range" id="tts-rate" min="0.5" max="1.8" step="0.1" value="1.1" class="w-16 h-1 bg-slate-500 rounded-lg appearance-none cursor-pointer accent-blue-500">
-                    </div>
-                </div>
-                <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-3 text-sm">
-                    <div class="bg-slate-700 p-3 rounded-lg max-w-[85%] border border-slate-600">
-                        <p class="text-xs text-blue-400 font-semibold mb-1">Yosef</p>
-                        <p>Hallo... ik ben Yosef. Ik was in die grote bus... Veolis lijn 58. Heel erg schrikken bij die... ja, die Schietbaan. Wat jij willen weten van mij?</p>
-                    </div>
-                </div>
-                <div class="p-3 border-t border-slate-700 bg-slate-800">
-                    <div class="flex gap-2">
-                        <input type="text" id="chat-input" placeholder="Stel een vraag aan de getuige..." class="flex-1 p-2 rounded bg-slate-700 border border-slate-600 text-sm focus:outline-none focus:border-blue-500 text-white">
-                        <button id="btn-send-chat" class="bg-blue-600 hover:bg-blue-700 px-4 rounded text-sm font-medium transition">Vraag</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-slate-800 rounded-lg border border-slate-700 flex flex-col h-full shadow-lg p-4">
-                <h2 class="text-lg font-bold text-blue-400 mb-2">Officiële Verklaring Opnemen</h2>
-                <p class="text-xs text-slate-400 mb-4">Noteer hier de feiten, omstandigheden en het signalement zo nauwkeurig mogelijk.</p>
-                
-                <form id="statement-form" class="flex flex-col flex-1 space-y-4">
-                    <div class="flex-1 flex flex-col">
-                        <label class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Inhoud Verklaring Getuige</label>
-                        <textarea id="statement-text" required placeholder="Typ hier de uitgewerkte getuigenverklaring uit..." class="w-full flex-1 p-3 rounded bg-slate-700 border border-slate-600 focus:outline-none focus:border-blue-500 text-sm resize-none text-white"></textarea>
-                    </div>
-                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 py-2.5 rounded font-semibold text-sm transition shadow-md">Verklaring Definitief Indienen</button>
-                </form>
-                <button id="btn-go-to-opsporing" class="hidden mt-3 w-full bg-blue-600 hover:bg-blue-700 py-2.5 rounded font-semibold text-sm transition shadow-md text-center">🎯 Ga naar Opsporing & Fotoconfrontatie</button>
-            </div>
-
-            <div class="bg-slate-800 rounded-lg border border-slate-700 flex flex-col h-full shadow-lg p-4">
-                <h2 class="text-lg font-bold text-amber-400 mb-1">Ingediende Verklaringen & Feedback</h2>
-                <p class="text-xs text-slate-400 mb-3">Live updates van alle klassen. Give feedback zonder het scherm van anderen te storen.</p>
-                
-                <div id="live-feed" class="feed-container space-y-4 pr-1">
-                    </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="opsporing-screen" class="hidden h-screen flex flex-col">
-        <header class="bg-slate-800 p-4 border-b border-slate-700 flex justify-between items-center shadow-md">
-            <div>
-                <h1 class="text-xl font-bold text-amber-400">Fase 2: Fotoconfrontatie (Line-up)</h1>
-                <p class="text-xs text-slate-400">Selecteer the juiste verdachten op basis van de getuigenverklaring van Yosef.</p>
-            </div>
-            <div class="text-sm bg-slate-700 px-3 py-1.5 rounded border border-slate-600">
-                Gebruiker: <span class="user-display font-semibold text-emerald-400"></span>
-            </div>
-        </header>
-
-        <div class="flex-1 p-6 overflow-y-auto space-y-8 max-w-6xl mx-auto w-full">
-            <div class="bg-slate-800 p-6 rounded-lg border border-slate-700 shadow-md">
-                <h2 class="text-lg font-bold text-blue-400 mb-2">1. Wie is de hoofdverdachte?</h2>
-                <p class="text-xs text-slate-400 mb-4">Yosef: "Die dief was echt heel lang man, bijna twee meter! Hij heeft een rode hoodie trui met muts op hoofd. En broek met gaten bij knie."</p>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div onclick="selectSuspect(1, 'A', false)" id="suspect-1-A" class="suspect-card border border-slate-600 rounded-lg p-3 bg-slate-700 cursor-pointer hover:border-slate-400 transition text-center">
-                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80" alt="Verdachte" class="w-full h-48 object-cover rounded mb-2">
-                        <span class="text-sm font-semibold">Verdachte A (1.75m, groene trui)</span>
-                    </div>
-                    <div onclick="selectSuspect(1, 'B', true)" id="suspect-1-B" class="suspect-card border border-slate-600 rounded-lg p-3 bg-slate-700 cursor-pointer hover:border-slate-400 transition text-center">
-                        <img src="https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=300&q=80" alt="Verdachte" class="w-full h-48 object-cover rounded mb-2">
-                        <span class="text-sm font-semibold">Verdachte B (1.98m, rode hoodie)</span>
-                    </div>
-                    <div onclick="selectSuspect(1, 'C', false)" id="suspect-1-C" class="suspect-card border border-slate-600 rounded-lg p-3 bg-slate-700 cursor-pointer hover:border-slate-400 transition text-center">
-                        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80" alt="Verdachte" class="w-full h-48 object-cover rounded mb-2">
-                        <span class="text-sm font-semibold">Verdachte C (1.85m, zwart jasje)</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-slate-800 p-6 rounded-lg border border-slate-700 shadow-md">
-                <h2 class="text-lg font-bold text-blue-400 mb-2">2. Wie is de medeverdachte?</h2>
-                <p class="text-xs text-slate-400 mb-4">Yosef: "Andere jongen was klein, beetje dikker. Hij had wit petje op en blauwe spijkerbroek."</p>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div onclick="selectSuspect(2, 'A', false)" id="suspect-2-A" class="suspect-card border border-slate-600 rounded-lg p-3 bg-slate-700 cursor-pointer hover:border-slate-400 transition text-center">
-                        <img src="https://images.unsplash.com/photo-1607990283143-e81e7a2c93ab?auto=format&fit=crop&w=300&q=80" alt="Verdachte" class="w-full h-48 object-cover rounded mb-2">
-                        <span class="text-sm font-semibold">Verdachte D (1.90m, kalend, atletisch)</span>
-                    </div>
-                    <div onclick="selectSuspect(2, 'B', false)" id="suspect-2-B" class="suspect-card border border-slate-600 rounded-lg p-3 bg-slate-700 cursor-pointer hover:border-slate-400 transition text-center">
-                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" alt="Verdachte" class="w-full h-48 object-cover rounded mb-2">
-                        <span class="text-sm font-semibold">Verdachte E (1.65m, blond, zwart petje)</span>
-                    </div>
-                    <div onclick="selectSuspect(2, 'C', true)" id="suspect-2-C" class="suspect-card border border-slate-600 rounded-lg p-3 bg-slate-700 cursor-pointer hover:border-slate-400 transition text-center">
-                        <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=300&q=80" alt="Verdachte" class="w-full h-48 object-cover rounded mb-2">
-                        <span class="text-sm font-semibold">Verdachte F (1.70m, stevig gebouwd, wit petje)</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="text-center">
-                <button id="btn-start-interrogation" class="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-bold text-base transition shadow-lg opacity-50 cursor-not-allowed" disabled>
-                    🔒 Start Verdachte Verhoor
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="verhoor-screen" class="hidden h-screen flex flex-col">
-        <header class="bg-slate-800 p-4 border-b border-slate-700 flex justify-between items-center shadow-md">
-            <div>
-                <h1 class="text-xl font-bold text-red-400">Fase 3: Verdachte Verhoor</h1>
-                <p class="text-xs text-slate-400">Verdachte: Maikel (Aangehouden op basis van signalement)</p>
-            </div>
-            <div class="text-sm bg-slate-700 px-3 py-1.5 rounded border border-slate-600">
-                Gebruiker: <span class="user-display font-semibold text-emerald-400"></span>
-            </div>
-        </header>
-
-        <div class="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 overflow-hidden">
-            <div class="bg-slate-800 rounded-lg border border-slate-700 flex flex-col h-full shadow-lg">
-                <div class="p-3 border-b border-slate-700 bg-slate-750 flex flex-col gap-2">
-                    <div class="flex items-center justify-between">
-                        <h2 class="font-bold text-sm text-red-400">Maikel (Hoofdverdachte)</h2>
-                        <span id="cautie-status" class="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded border border-slate-600 font-semibold">🔴 VERHOOR ACTIEF</span>
-                    </div>
-                    <button id="btn-give-cautie" class="w-full bg-amber-600 hover:bg-amber-700 text-slate-900 font-bold py-2 rounded text-xs transition uppercase tracking-wider">
-                        ⚖️ Geef Cautie (Zwijgrecht & Advocaat)
-                    </button>
-                </div>
-
-                <div id="suspect-messages" class="flex-1 p-4 overflow-y-auto space-y-3 text-sm bg-slate-850">
-                    <div class="bg-slate-700 p-3 rounded-lg max-w-[85%] border border-slate-600">
-                        <p class="text-xs text-red-400 font-semibold mb-1">Maikel</p>
-                        <p>Wat moet je van me? Waarom zit ik hier op het bureau vast? Ik heb helemaal niks gedaan man.</p>
-                    </div>
-                </div>
-
-                <div class="p-3 border-t border-slate-700 bg-slate-800">
-                    <div class="flex gap-2">
-                        <input type="text" id="suspect-input" placeholder="Stel Maikel een confronterende vraag..." class="flex-1 p-2 rounded bg-slate-700 border border-slate-600 text-sm focus:outline-none focus:border-blue-500 text-white">
-                        <button id="btn-send-suspect" class="bg-red-600 hover:bg-red-700 px-4 rounded text-sm font-medium transition">Stel Vraag</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-slate-800 rounded-lg border border-slate-700 flex flex-col h-full shadow-lg p-4">
-                <h2 class="text-lg font-bold text-red-400 mb-2">Verklaring Verdachte Noteren</h2>
-                <p class="text-xs text-slate-400 mb-4">Leg de bekentenis, ontkenning of opmerkingen van de verdachte formeel vast.</p>
-                
-                <form id="suspect-statement-form" class="flex flex-col flex-1 space-y-4">
-                    <div class="flex-1 flex flex-col">
-                        <label class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Inhoudelijk Verhoorverslag</label>
-                        <textarea id="suspect-statement-text" required placeholder="Noteer hier de gedetailleerde verklaring en antwoorden van de verdachte..." class="w-full flex-1 p-3 rounded bg-slate-700 border border-slate-600 focus:outline-none focus:border-blue-500 text-sm resize-none text-white"></textarea>
-                    </div>
-                    <button type="submit" class="bg-red-600 hover:bg-red-700 py-2.5 rounded font-semibold text-sm transition shadow-md">Verdachte-verklaring Definitief Indienen</button>
-                </form>
-            </div>
-
-            <div class="bg-slate-800 rounded-lg border border-slate-700 flex flex-col h-full shadow-lg p-4">
-                <h2 class="text-lg font-bold text-amber-400 mb-1">Live Feed Verdachten & Feedback</h2>
-                <p class="text-xs text-slate-400 mb-3">Zie hoe collega's de druk opvoeren en geef elkaar juridische feedback.</p>
-                
-                <div id="suspect-live-feed" class="feed-container space-y-4 pr-1">
-                    </div>
-            </div>
-        </div>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push, onChildAdded, update, onChildChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-        // Jouw Firebase Configuratie (Exact behouden zoals verstrekt)
-        const firebaseConfig = {
-            apiKey: "AIzaSyC-Of0AUOd-kVo2RKxYc-68Gr-RO4HdRk0",
-            authDomain: "q2aangifteles2.firebaseapp.com",
-            databaseURL: "https://q2aangifteles2-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "q2aangifteles2",
-            storageBucket: "q2aangifteles2.firebasestorage.app",
-            messagingSenderId: "696806554615",
-            appId: "1:696806554615:web:bd877b1caee23c5283ccf2"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
-
-        // App Status Variabelen
-        let currentStudent = "";
-        let currentClass = "";
-        let suspect1Selected = false;
-        let suspect2Selected = false;
-        let cautieGegeven = false;
-
-        // DOM Elementen
-        const loginScreen = document.getElementById('login-screen');
-        const appScreen = document.getElementById('app-screen');
-        const opsporingScreen = document.getElementById('opsporing-screen');
-        const verhoorScreen = document.getElementById('verhoor-screen');
-        
-        const loginForm = document.getElementById('login-form');
-        const chatMessages = document.getElementById('chat-messages');
-        const chatInput = document.getElementById('chat-input');
-        const btnSendChat = document.getElementById('btn-send-chat');
-        const statementForm = document.getElementById('statement-form');
-        const statementText = document.getElementById('statement-text');
-        const btnGoToOpsporing = document.getElementById('btn-go-to-opsporing');
-        const liveFeed = document.getElementById('live-feed');
-        const ttsRateInput = document.getElementById('tts-rate');
-
-        // Nieuwe elementen voor Verdachte
-        const btnStartInterrogation = document.getElementById('btn-start-interrogation');
-        const btnGiveCautie = document.getElementById('btn-give-cautie');
-        const cautieStatus = document.getElementById('cautie-status');
-        const suspectMessages = document.getElementById('suspect-messages');
-        const suspectInput = document.getElementById('suspect-input');
-        const btnSendSuspect = document.getElementById('btn-send-suspect');
-        const suspectStatementForm = document.getElementById('suspect-statement-form');
-        const suspectStatementText = document.getElementById('suspect-statement-text');
-        const suspectLiveFeed = document.getElementById('suspect-live-feed');
-
-        // Globale functie voor suspect-selectie registreren in window object wegens inline onclicks
-        window.selectSuspect = function(daderNummer, cardLetter, isCorrect) {
-            // Reset borders van deze specifieke dader-rij
-            document.querySelectorAll(`#opsporing-screen .bg-slate-800:nth-of-type(${daderNummer}) .suspect-card`).forEach(el => {
-                el.classList.remove('selected', 'border-blue-500', 'bg-blue-950/40');
-            });
-
-            // Voeg geselecteerde stijl toe
-            const selectedCard = document.getElementById(`suspect-${daderNummer}-${cardLetter}`);
-            selectedCard.classList.add('selected', 'border-blue-500', 'bg-blue-950/40');
-
-            if (daderNummer === 1) suspect1Selected = isCorrect;
-            if (daderNummer === 2) suspect2Selected = isCorrect;
-
-            // Check of line-up compleet en correct is
-            if (suspect1Selected && suspect2Selected) {
-                btnStartInterrogation.removeAttribute('disabled');
-                btnStartInterrogation.classList.remove('opacity-50', 'cursor-not-allowed');
-                btnStartInterrogation.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
-                btnStartInterrogation.innerText = "🔓 Verdachten Geïdentificeerd! Start Verhoor";
-            } else {
-                btnStartInterrogation.setAttribute('disabled', 'true');
-                btnStartInterrogation.classList.add('opacity-50', 'cursor-not-allowed');
-                btnStartInterrogation.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
-                btnStartInterrogation.innerText = "🔒 Start Verdachte Verhoor";
+if (v.includes('vrouw') || v.includes('zwanger') || v.includes('slachtoffer') || v.includes('buik')) {
+                return "Een zwangere vrouw? Ik heb helemaal geen vrouw gezien man. Ik zeg je toch, ik liep gewoon in m'n eentje in het bos. Je probeert me iets aan te naaien.";
             }
-        };
-
-        // 1. LOGIN LOGICA
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            currentStudent = document.getElementById('student-name').value.trim();
-            currentClass = document.getElementById('student-class').value;
-
-            if (currentStudent && currentClass) {
-                document.querySelectorAll('.user-display').forEach(el => el.textContent = currentStudent);
-                document.querySelectorAll('.class-display').forEach(el => el.textContent = currentClass);
-                loginScreen.classList.add('hidden');
-                appScreen.classList.remove('hidden');
-                
-                // OC-MELDINGAANMAAK EN INJECTIE
-                const ocBubble = document.createElement('div');
-                ocBubble.className = "bg-slate-900/80 p-3 rounded-lg max-w-[90%] border border-amber-500/45 text-xs shadow-md mb-2";
-                ocBubble.innerHTML = `
-                    <p class="text-amber-400 font-bold uppercase tracking-wide flex items-center gap-1 mb-1">
-                        <span>🚨 OC (Operationeel Centrum)</span>
-                        <span class="text-slate-500 font-normal not-italic ml-auto">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} u</span>
-                    </p>
-                    <p class="text-slate-300 leading-relaxed">
-                        <strong>MELDING DISPATCH:</strong> Alle eenheden Amersfoort/Leusden. Ga met spoed naar de <strong>Loes van Overeemlaan</strong> ter hoogte van <strong>halte Schietbaan</strong>. 
-                        Betreft een heterdaad diefstal met geweld in Veolis bus lijn 58. Slachtoffer is een hoogzwangere vrouw die hard ten val is gekomen. 
-                        Verdachten te voet gevlucht richting het bosgebied. Getuige genaamd <em>Yosef</em> is ter plaatse veiliggesteld. Start direct het getuigenverhoor op.
-                    </p>
-                `;
-                chatMessages.insertBefore(ocBubble, chatMessages.firstChild);
-                spreekTekstUit("Hallo... ik ben Yosef. Ik was in die grote bus... Veolis lijn 58. Heel erg schrikken bij die... ja, die Schietbaan. Wat jij willen weten van mij?", "Yosef");
+            if (v.includes('kleding') || v.includes('hoodie') || v.includes('rood') || v.includes('gaten') || v.includes('knie')) {
+                return "Iedereen loopt tegenwoordig in een rode hoodie. En die gaten in m'n broek? Dat is gewoon mode, mag dat ook al niet van de politie?";
             }
-        });
-
-        // DYNAMISCHE TEXT TO SPEECH FUNCTIE
-        function spreekTekstUit(tekst, spreker) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(tekst);
-                
-                // Bepaal de taal en steminstelling op basis van de spreker
-                if (spreker === 'Yosef') {
-                    utterance.lang = 'en-GB'; // Engelse tongval die Nederlands leest
-                    utterance.rate = 1.0;     // Iets rustiger tempo voor betere verstaanbaarheid
-                } else {
-                    utterance.lang = 'nl-NL'; // Perfect Nederlands voor daders en systeem
-                    utterance.rate = ttsRateInput ? parseFloat(ttsRateInput.value) : 1.1; 
-                }
-                
-                utterance.pitch = 1.0;    
-                window.speechSynthesis.speak(utterance);
+            if (v.includes('waarom') || v.includes('rennen') || v.includes('bos')) {
+                return "Ik rende helemaal niet! Ik hield gewoon een stevige wandeling om m'n hoofd leeg te maken. Sinds wanneer is wandelen in het bos strafbaar?";
             }
-        }
-
-        // 2. CHATBOT LOGICA (Yosef - Getuige)
-        function genereerGetuigeAntwoord(vraag) {
-            const v = vraag.toLowerCase();
-            if (v.includes('hoe laat') || v.includes('tijd') || v.includes('wanneer')) {
-                return "Ik kijken op telefoon toen... was middag, denk ik rond drie uur. Ja, 15:00 uur ongeveer.";
-            }
-            if (v.includes('signalement') || v.includes('hoe zag') || v.includes('uiterlijk') || v.includes('kleding') || v.includes('jas') || v.includes('dief')) {
-                return "Die dief was echt heel lang man, bijna twee meter! Hij heeft een rode... ding... trui met muts op hoofd, ja hoodie rood. En broek met gaten bij knie. Hij keek echt heel boos.";
-            }
-            if (v.includes('andere') || v.includes('meerdere') || v.includes('samen') || v.includes('mededader') || v.includes('vriend')) {
-                return "Ja! Twee jongens! Andere jongen was klein, beetje dikker. Hij had wit petje op en blauwe spijkerbroek. Hij stood bij deur te roepen: 'Snel, snel!'.";
-            }
-            if (v.includes('gebeurd') || v.includes('voorval') || v.includes('wat is er') || v.includes('gezien')) {
-                return "Ik zie die lange jongen trekken aan tas van een mevrouw. Heel hard! Die mevrouw heeft... ja... heel grote dikke buik met kindje erin. Zij valt hard op de vloer van bus, heel hard huilen en roepen voor haar baby! Hij pakt tas Strain en rent weg als bus stopt.";
-            }
-            if (v.includes('waar') || v.includes('locatie') || v.includes('halte') || v.includes('bus') || v.includes('leusden')) {
-                return "In de Veolis bus, lijn 58! Bus stopt bij halte Schietbaan op die weg... Loes van Overeemlaan. Daar rende ze direct de bus uit, zo het bos in bij de schietbaan.";
-            }
-            if (v.includes('vrouw') || v.includes('slachtoffer') || v.includes('mevrouw') || v.includes('zwanger') || v.includes('buik') || v.includes('wie')) {
-                return "Die mevrouw was niet oud, jonge mevrouw. Maar zij heeft echt heel grote buik... hoe zeg je dat... niet van veel eten, nee, er zit een kleine baby binnenin! De baby komt bijna uit haar buik denk ik. Zij was heel erg bang voor de baby toen zij op de grond viel.";
-            }
-            if (v.includes('wapen') || v.includes('mes') || v.includes('pistool')) {
-                return "Nee, ik niet zien wapen. Alleen heel veel kracht gebruiken bij trekken van tas.";
-            }
-            if (v.includes('naam') || v.includes('wie ben jij')) {
-                return "Mijn naam is Yosef. Ik kom uit Ethiopië, nu twee jaar in Nederland. Sorry voor mijn slechte woorden.";
-            }
-            return "Moeilijk woord voor mij... Wat bedoel je? Ik weet over die lange jongen met rode hoodie, and die mevrouw met baby in de buik in bus 58 bij Schietbaan. Vraag over kleding of de mevrouw met grote buik?";
-        }
-
-        function verwerkChatBericht() {
-            const tekst = chatInput.value.trim();
-            if (!tekst) return;
-
-            const studentBubble = document.createElement('div');
-            studentBubble.className = "bg-blue-600 p-3 rounded-lg max-w-[85%] ml-auto text-right border border-blue-500 shadow-sm";
-            studentBubble.innerHTML = `<p class="text-xs text-blue-200 font-semibold mb-1">Jij</p><p>${tekst}</p>`;
-            chatMessages.appendChild(studentBubble);
-            
-            chatInput.value = "";
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-
-            setTimeout(() => {
-                const getuigeAntwoord = genereerGetuigeAntwoord(tekst);
-                const getuigeBubble = document.createElement('div');
-                getuigeBubble.className = "bg-slate-700 p-3 rounded-lg max-w-[85%] border border-slate-600 shadow-sm";
-                getuigeBubble.innerHTML = `<p class="text-xs text-blue-400 font-semibold mb-1">Yosef</p><p>${getuigeAntwoord}</p>`;
-                chatMessages.appendChild(getuigeBubble);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-                spreekTekstUit(getuigeAntwoord, "Yosef");
-            }, 800);
-        }
-
-        btnSendChat.addEventListener('click', verwerkChatBericht);
-        chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') verwerkChatBericht(); });
-
-        // 3. FIREBASE: GETUIGENVERKLARING OPSTUREN
-        statementForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const tekst = statementText.value.trim();
-            if (!tekst) return;
-
-            const statementsRef = ref(database, 'statements');
-            push(statementsRef, {
-                student: currentStudent,
-                klas: currentClass,
-                verklaring: tekst,
-                timestamp: Date.now()
-            }).then(() => {
-                alert("Je getuigenverklaring is succesvol opgeslagen! Je kunt nu door naar de opsporingsfase.");
-                btnGoToOpsporing.classList.remove('hidden'); // Toon de navigatieknop
-            }).catch((error) => {
-                console.error("Fout bij opslaan:", error);
-            });
-        });
-
-        // NAVIGATIE NAAR OPSPORING
-        btnGoToOpsporing.addEventListener('click', () => {
-            appScreen.classList.add('hidden');
-            opsporingScreen.classList.remove('hidden');
-        });
-
-        // NAVIGATIE NAAR VERDACHTEVERHOOR
-        btnStartInterrogation.addEventListener('click', () => {
-            opsporingScreen.classList.add('hidden');
-            verhoorScreen.classList.remove('hidden');
-            spreekTekstUit("Wat moet je van me? Waarom zit ik hier op het bureau vast? Ik heb helemaal niks gedaan man.", "Maikel");
-        });
-
-        // 4. JURIDISCHE LOGICA: CAUTIE VERLENEN
-        btnGiveCautie.addEventListener('click', () => {
-            cautieGegeven = true;
-            cautieStatus.className = "text-xs bg-emerald-900/60 text-emerald-400 px-2 py-0.5 rounded border border-emerald-700 font-semibold";
-            cautieStatus.textContent = "⚖️ CAUTIE VERLEEND";
-            btnGiveCautie.setAttribute('disabled', 'true');
-            btnGiveCautie.classList.add('opacity-50', 'cursor-not-allowed');
-        });
-
-        // 5. CHATBOT LOGICA (Maikel - Verdachte)
-        function genereerSuspectAntwoord(vraag) {
-            const v = vraag.toLowerCase();
-            if (v.includes('bekennen') || v.includes('gedaan') || v.includes('gestolen') || v.includes('tas') || v.includes('bus')) {
-                return "Ik heb helemaal niks gestolen man! Ik liep daar gewoon rustig in het bos te wandelen. Je hebt echt de verkeerde voor je.";
-            }
-            if (v.includes('wie') || v.includes('mededader') || v.includes('vriend') || v.includes('andere')) {
-                return "Ik was gewoon alleen. Ik weet niks van een andere jongen of een wit petje.";
-            }
-            if (v.includes('vrouw') || v.includes('zwanger') || v.includes('buik')) {
-                return "Ik heb helemaal geen vrouw gezien of geduwd. Wat is dit voor een bizar verhaal?";
-            }
-            return "Ik zeg verder niks meer over deze onzin. Ik wil gewoon naar huis.";
+            return "Ik snap echt niet waar je het over hebt. Ik beroep me op m'n zwijgrecht als je zo doorgaat... tenzij je met echt bewijs komt.";
         }
 
         function verwerkSuspectBericht() {
             const tekst = suspectInput.value.trim();
             if (!tekst) return;
 
+            // Voeg bericht van de student toe aan de chat
             const studentBubble = document.createElement('div');
-            studentBubble.className = "bg-blue-600 p-3 rounded-lg max-w-[85%] ml-auto text-right border border-blue-500 shadow-sm";
-            studentBubble.innerHTML = `<p class="text-xs text-blue-200 font-semibold mb-1">Jij</p><p>${tekst}</p>`;
+            studentBubble.className = "bg-red-600 p-3 rounded-lg max-w-[85%] ml-auto text-right border border-red-500 shadow-sm";
+            studentBubble.innerHTML = `<p class="text-xs text-red-200 font-semibold mb-1">Jij</p><p>${tekst}</p>`;
             suspectMessages.appendChild(studentBubble);
             
             suspectInput.value = "";
             suspectMessages.scrollTop = suspectMessages.scrollHeight;
 
+            // Genereer en toon antwoord van Maikel na een korte vertraging
             setTimeout(() => {
                 const suspectAntwoord = genereerSuspectAntwoord(tekst);
                 const suspectBubble = document.createElement('div');
@@ -499,6 +31,8 @@
                 suspectBubble.innerHTML = `<p class="text-xs text-red-400 font-semibold mb-1">Maikel</p><p>${suspectAntwoord}</p>`;
                 suspectMessages.appendChild(suspectBubble);
                 suspectMessages.scrollTop = suspectMessages.scrollHeight;
+                
+                // Spreek tekst uit met NL stem
                 spreekTekstUit(suspectAntwoord, "Maikel");
             }, 800);
         }
@@ -506,7 +40,7 @@
         btnSendSuspect.addEventListener('click', verwerkSuspectBericht);
         suspectInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') verwerkSuspectBericht(); });
 
-        // VERDACHTE VERKLARING OPSLAAN IN FIREBASE
+        // 6. FIREBASE: VERDACHTEVERKLARING OPSTUREN
         suspectStatementForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const tekst = suspectStatementText.value.trim();
@@ -517,13 +51,54 @@
                 student: currentStudent,
                 klas: currentClass,
                 verklaring: tekst,
+                cautieVerleend: cautieGegeven,
                 timestamp: Date.now()
             }).then(() => {
-                alert("Het verhoorverslag van de verdachte is succesvol opgeslagen!");
+                alert("Je officiële verdachte-verhoorverslag is succesvol opgeslagen en gedeeld met de live feed!");
+                suspectStatementText.value = "";
             }).catch((error) => {
-                console.error("Fout bij opslaan verhoorverslag:", error);
+                console.error("Fout bij opslaan verdachte verklaring:", error);
             });
         });
+
+        // 7. REAL-TIME LIVE FEEDS INTERACTIE (FIREBASE LISTENERS)
+        // Haal getuigenverklaringen op voor de live-feed van Fase 1
+        const statementsRef = ref(database, 'statements');
+        onChildAdded(statementsRef, (data) => {
+            const val = data.val();
+            const item = document.createElement('div');
+            item.className = "bg-slate-700/60 p-3 rounded-lg border border-slate-600 text-xs shadow-sm space-y-1";
+            item.innerHTML = `
+                <div class="flex justify-between items-center text-slate-400">
+                    <span class="font-bold text-blue-400">${val.student} <span class="text-slate-500 font-normal">(${val.klas})</span></span>
+                    <span>${new Date(val.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} u</span>
+                </div>
+                <p class="text-slate-200 italic leading-relaxed">"${val.verklaring}"</p>
+            `;
+            liveFeed.insertBefore(item, liveFeed.firstChild);
+        });
+
+        // Haal verdachte-verklaringen op voor de live-feed van Fase 3
+        const suspectStatementsRef = ref(database, 'suspect_statements');
+        onChildAdded(suspectStatementsRef, (data) => {
+            const val = data.val();
+            const item = document.createElement('div');
+            item.className = "bg-slate-700/60 p-3 rounded-lg border border-slate-600 text-xs shadow-sm space-y-1";
+            item.innerHTML = `
+                <div class="flex justify-between items-center text-slate-400">
+                    <span class="font-bold text-red-400">${val.student} <span class="text-slate-500 font-normal">(${val.klas})</span></span>
+                    <span>${new Date(val.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} u</span>
+                </div>
+                <p class="text-slate-200 italic leading-relaxed">"${val.verklaring}"</p>
+                <div class="pt-1 flex items-center">
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase ${val.cautieVerleend ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-red-950 text-red-400 border border-red-800'}">
+                        ${val.cautieVerleend ? '⚖️ Cautie Gecorrigeerd' : '⚠️ GEEN CAUTIE GEGEVEN'}
+                    </span>
+                </div>
+            `;
+            suspectLiveFeed.insertBefore(item, suspectLiveFeed.firstChild);
+        });
+
     </script>
 </body>
 </html>
