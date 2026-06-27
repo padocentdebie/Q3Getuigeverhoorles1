@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Getuigen- & Verdachteverhoor Simulator - Politieacademie</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
     <style>
-        /* Voorkomt scroll-jumping in de live-feeds en houdt het venster vergroot */
         .feed-container {
             height: 75vh;
             overflow-y: auto;
@@ -20,14 +20,14 @@
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen font-sans">
 
-
+    <!-- ==================== LOGIN ==================== -->
     <div id="login-screen" class="flex items-center justify-center min-h-screen px-4">
         <div class="bg-slate-800 p-8 rounded-lg shadow-xl w-full max-w-md border border-slate-700">
             <h1 class="text-2xl font-bold text-center text-blue-400 mb-6">Verhoor Simulator Login</h1>
             <form id="login-form" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium mb-1">Naam Student</label>
-                    <input type="text" id="student-name" required class="w-full p-2.5 rounded bg-slate-700 border border-slate-600 focus:outline-none focus:border-blue-500 text-white">
+                    <input type="text" id="student-name" required class="w-full p-2.5 rounded bg-slate-700 border border-slate-600 focus:outline-none focus:border-blue-500 text-white" />
                 </div>
                 <div>
                     <label class="block text-sm font-medium mb-1">Klas</label>
@@ -52,23 +52,25 @@
         </div>
     </div>
 
-
+    <!-- ==================== FASE 1: GETUIGENVERHOOR ==================== -->
     <div id="app-screen" class="hidden h-screen flex flex-col">
         <header class="bg-slate-800 p-4 border-b border-slate-700 flex justify-between items-center shadow-md">
             <div>
                 <h1 class="text-xl font-bold text-blue-400">Casus: Incident Leusden (Lijn 58)</h1>
                 <p class="text-xs text-slate-400">Fase 1: Getuigenverhoor Yosef | Locatie: Loes van Overeemlaan</p>
             </div>
-            <div class="text-sm bg-slate-700 px-3 py-1.5 rounded border border-slate-600">
-                Gebruiker: <span class="user-display font-semibold text-emerald-400"></span> 
-                (<span class="class-display font-semibold text-emerald-400"></span>)
+            <div class="flex items-center gap-3">
+                <div class="text-sm bg-slate-700 px-3 py-1.5 rounded border border-slate-600">
+                    Gebruiker: <span class="user-display font-semibold text-emerald-400"></span>
+                    (<span class="class-display font-semibold text-emerald-400"></span>)
+                </div>
+                <!-- RESETKNOP -->
+                <button class="reset-btn bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded text-sm font-medium transition shadow-md">Uitloggen</button>
             </div>
         </header>
 
-
-        <!-- Grid met 4 kolommen voor extra brede chatruimte -->
         <div class="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-4 p-4 overflow-y-auto h-[82vh]">
-            <!-- Vergroot Chatvenster -->
+            <!-- Chatvenster -->
             <div class="lg:col-span-2 bg-slate-800 rounded-lg border border-slate-700 flex flex-col h-full shadow-lg">
                 <div class="p-3 border-b border-slate-700 bg-slate-750 flex items-center justify-between">
                     <div class="flex items-center gap-3">
@@ -80,7 +82,7 @@
                     </div>
                     <div class="flex items-center gap-2 text-xs bg-slate-700 text-slate-300 px-2 py-1 rounded border border-slate-600">
                         <span class="cursor-help" title="Pas de spreeksnelheid van Yosef aan">🔊 Tempo:</span>
-                        <input type="range" id="tts-rate" min="0.5" max="1.8" step="0.1" value="1.1" class="w-16 h-1 bg-slate-500 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                        <input type="range" id="tts-rate" min="0.5" max="1.8" step="0.1" value="1.1" class="w-16 h-1 bg-slate-500 rounded-lg appearance-none cursor-pointer accent-blue-500" />
                     </div>
                 </div>
                 <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-3 text-base">
@@ -91,18 +93,16 @@
                 </div>
                 <div class="p-3 border-t border-slate-700 bg-slate-800">
                     <div class="flex gap-2">
-                        <input type="text" id="chat-input" placeholder="Stel een vraag aan de getuige..." class="flex-1 p-2.5 rounded bg-slate-700 border border-slate-600 text-sm focus:outline-none focus:border-blue-500 text-white">
+                        <input type="text" id="chat-input" placeholder="Stel een vraag aan de getuige..." class="flex-1 p-2.5 rounded bg-slate-700 border border-slate-600 text-sm focus:outline-none focus:border-blue-500 text-white" />
                         <button id="btn-send-chat" class="bg-blue-600 hover:bg-blue-700 px-5 rounded text-sm font-medium transition">Vraag</button>
                     </div>
                 </div>
             </div>
 
-
-            <!-- Officiële verklaring kolom -->
+            <!-- Officiële verklaring -->
             <div class="bg-slate-800 rounded-lg border border-slate-700 flex flex-col h-full shadow-lg p-4 lg:col-span-1">
                 <h2 class="text-lg font-bold text-blue-400 mb-2">Officiële Verklaring</h2>
                 <p class="text-xs text-slate-400 mb-4">Noteer hier de feiten, omstandigheden en het signalement zo nauwkeurig mogelijk.</p>
-                
                 <form id="statement-form" class="flex flex-col flex-1 space-y-4">
                     <div class="flex-1 flex flex-col">
                         <label class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Inhoud Verklaring Getuige</label>
@@ -113,72 +113,70 @@
                 <button id="btn-go-to-opsporing" class="hidden mt-3 w-full bg-blue-600 hover:bg-blue-700 py-2.5 rounded font-semibold text-sm transition shadow-md text-center">🎯 Ga naar Opsporing & Fotoconfrontatie</button>
             </div>
 
-
-            <!-- Live-feed kolom met feedbackruimte -->
+            <!-- Live-feed -->
             <div class="bg-slate-800 rounded-lg border border-slate-700 flex flex-col h-full shadow-lg p-4 lg:col-span-1">
                 <h2 class="text-lg font-bold text-amber-400 mb-1">Klassen Feedback</h2>
                 <p class="text-xs text-slate-400 mb-3">Lees het werk van collega's en geef onderling opbouwende feedback.</p>
-                
-                <div id="live-feed" class="feed-container space-y-4 pr-1">
-                    <!-- Wordt dynamisch gevuld vanuit Firebase -->
-                </div>
+                <div id="live-feed" class="feed-container space-y-4 pr-1"></div>
             </div>
         </div>
     </div>
 
-
+    <!-- ==================== FASE 2: OPSPORING & FOTOCONFRONTATIE ==================== -->
     <div id="opsporing-screen" class="hidden h-screen flex flex-col">
         <header class="bg-slate-800 p-4 border-b border-slate-700 flex justify-between items-center shadow-md">
             <div>
                 <h1 class="text-xl font-bold text-amber-400">Fase 2: Fotoconfrontatie (Line-up)</h1>
                 <p class="text-xs text-slate-400">Selecteer de juiste verdachten op basis van de getuigenverklaring van Yosef.</p>
             </div>
-            <div class="text-sm bg-slate-700 px-3 py-1.5 rounded border border-slate-600">
-                Gebruiker: <span class="user-display font-semibold text-emerald-400"></span>
+            <div class="flex items-center gap-3">
+                <div class="text-sm bg-slate-700 px-3 py-1.5 rounded border border-slate-600">
+                    Gebruiker: <span class="user-display font-semibold text-emerald-400"></span>
+                </div>
+                <button class="reset-btn bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded text-sm font-medium transition shadow-md">Uitloggen</button>
             </div>
         </header>
 
-
         <div class="flex-1 p-6 overflow-y-auto space-y-8 max-w-6xl mx-auto w-full">
+            <!-- Hoofdverdachte -->
             <div class="bg-slate-800 p-6 rounded-lg border border-slate-700 shadow-md">
                 <h2 class="text-lg font-bold text-blue-400 mb-2">1. Wie is de hoofdverdachte?</h2>
                 <p class="text-xs text-slate-400 mb-4">Yosef: "Die dief was echt heel lang man, bijna twee meter! Hij heeft een rode hoodie trui met muts op hoofd. En broek met gaten bij knie."</p>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div onclick="selectSuspect(1, 'A', false)" id="suspect-1-A" class="suspect-card border border-slate-600 rounded-lg p-3 bg-slate-700 cursor-pointer hover:border-slate-400 transition text-center">
-                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80" alt="Verdachte" class="w-full h-48 object-cover rounded mb-2">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80" alt="Verdachte" class="w-full h-48 object-cover rounded mb-2" />
                         <span class="text-sm font-semibold">Verdachte A (1.75m, groene trui)</span>
                     </div>
                     <div onclick="selectSuspect(1, 'B', true)" id="suspect-1-B" class="suspect-card border border-slate-600 rounded-lg p-3 bg-slate-700 cursor-pointer hover:border-slate-400 transition text-center">
-                        <img src="https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=300&q=80" alt="Verdachte" class="w-full h-48 object-cover rounded mb-2">
+                        <img src="https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=300&q=80" alt="Verdachte" class="w-full h-48 object-cover rounded mb-2" />
                         <span class="text-sm font-semibold">Verdachte B (1.98m, rode hoodie)</span>
                     </div>
                     <div onclick="selectSuspect(1, 'C', false)" id="suspect-1-C" class="suspect-card border border-slate-600 rounded-lg p-3 bg-slate-700 cursor-pointer hover:border-slate-400 transition text-center">
-                        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80" alt="Verdachte" class="w-full h-48 object-cover rounded mb-2">
+                        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80" alt="Verdachte" class="w-full h-48 object-cover rounded mb-2" />
                         <span class="text-sm font-semibold">Verdachte C (1.85m, zwart jasje)</span>
                     </div>
                 </div>
             </div>
 
-
+            <!-- Medeverdachte -->
             <div class="bg-slate-800 p-6 rounded-lg border border-slate-700 shadow-md">
                 <h2 class="text-lg font-bold text-blue-400 mb-2">2. Wie is de medeverdachte?</h2>
                 <p class="text-xs text-slate-400 mb-4">Yosef: "Andere jongen was klein, beetje dikker. Hij had wit petje op en blauwe spijkerbroek."</p>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div onclick="selectSuspect(2, 'A', false)" id="suspect-2-A" class="suspect-card border border-slate-600 rounded-lg p-3 bg-slate-700 cursor-pointer hover:border-slate-400 transition text-center">
-                        <img src="https://images.unsplash.com/photo-1607990283143-e81e7a2c93ab?auto=format&fit=crop&w=300&q=80" alt="Verdachte" class="w-full h-48 object-cover rounded mb-2">
+                        <img src="https://images.unsplash.com/photo-1607990283143-e81e7a2c93ab?auto=format&fit=crop&w=300&q=80" alt="Verdachte" class="w-full h-48 object-cover rounded mb-2" />
                         <span class="text-sm font-semibold">Verdachte D (1.90m, kalend, atletisch)</span>
                     </div>
                     <div onclick="selectSuspect(2, 'B', false)" id="suspect-2-B" class="suspect-card border border-slate-600 rounded-lg p-3 bg-slate-700 cursor-pointer hover:border-slate-400 transition text-center">
-                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" alt="Verdachte" class="w-full h-48 object-cover rounded mb-2">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" alt="Verdachte" class="w-full h-48 object-cover rounded mb-2" />
                         <span class="text-sm font-semibold">Verdachte E (1.65m, blond, zwart petje)</span>
                     </div>
                     <div onclick="selectSuspect(2, 'C', true)" id="suspect-2-C" class="suspect-card border border-slate-600 rounded-lg p-3 bg-slate-700 cursor-pointer hover:border-slate-400 transition text-center">
-                        <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=300&q=80" alt="Verdachte" class="w-full h-48 object-cover rounded mb-2">
+                        <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=300&q=80" alt="Verdachte" class="w-full h-48 object-cover rounded mb-2" />
                         <span class="text-sm font-semibold">Verdachte F (1.70m, stevig gebouwd, wit petje)</span>
                     </div>
                 </div>
             </div>
-
 
             <div class="text-center">
                 <button id="btn-start-interrogation" class="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-bold text-base transition shadow-lg opacity-50 cursor-not-allowed" disabled>
@@ -188,22 +186,23 @@
         </div>
     </div>
 
-
+    <!-- ==================== FASE 3: VERDACHTE VERHOOR ==================== -->
     <div id="verhoor-screen" class="hidden h-screen flex flex-col">
         <header class="bg-slate-800 p-4 border-b border-slate-700 flex justify-between items-center shadow-md">
             <div>
                 <h1 class="text-xl font-bold text-red-400">Fase 3: Verdachte Verhoor</h1>
                 <p class="text-xs text-slate-400">Verdachte: Maikel (Aangehouden op basis van signalement)</p>
             </div>
-            <div class="text-sm bg-slate-700 px-3 py-1.5 rounded border border-slate-600">
-                Gebruiker: <span class="user-display font-semibold text-emerald-400"></span>
+            <div class="flex items-center gap-3">
+                <div class="text-sm bg-slate-700 px-3 py-1.5 rounded border border-slate-600">
+                    Gebruiker: <span class="user-display font-semibold text-emerald-400"></span>
+                </div>
+                <button class="reset-btn bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded text-sm font-medium transition shadow-md">Uitloggen</button>
             </div>
         </header>
 
-
-        <!-- Grid met 4 kolommen voor extra brede chatruimte -->
         <div class="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-4 p-4 overflow-y-auto h-[82vh]">
-            <!-- Vergroot Chatvenster Verdachte -->
+            <!-- Chatvenster verdachte -->
             <div class="lg:col-span-2 bg-slate-800 rounded-lg border border-slate-700 flex flex-col h-full shadow-lg">
                 <div class="p-3 border-b border-slate-700 bg-slate-750 flex flex-col gap-2">
                     <div class="flex items-center justify-between">
@@ -215,7 +214,6 @@
                     </button>
                 </div>
 
-
                 <div id="suspect-messages" class="flex-1 p-4 overflow-y-auto space-y-3 text-base bg-slate-850">
                     <div class="bg-slate-700 p-3 rounded-lg max-w-[85%] border border-slate-600">
                         <p class="text-xs text-red-400 font-semibold mb-1">Maikel</p>
@@ -223,21 +221,18 @@
                     </div>
                 </div>
 
-
                 <div class="p-3 border-t border-slate-700 bg-slate-800">
                     <div class="flex gap-2">
-                        <input type="text" id="suspect-input" placeholder="Stel Maikel een confronterende vraag..." class="flex-1 p-2 rounded bg-slate-700 border border-slate-600 text-sm focus:outline-none focus:border-blue-500 text-white">
+                        <input type="text" id="suspect-input" placeholder="Stel Maikel een confronterende vraag..." class="flex-1 p-2 rounded bg-slate-700 border border-slate-600 text-sm focus:outline-none focus:border-blue-500 text-white" />
                         <button id="btn-send-suspect" class="bg-red-600 hover:bg-red-700 px-4 rounded text-sm font-medium transition">Stel Vraag</button>
                     </div>
                 </div>
             </div>
 
-
-            <!-- Verklaring verdachte kolom -->
+            <!-- Verhoorverslag -->
             <div class="bg-slate-800 rounded-lg border border-slate-700 flex flex-col h-full shadow-lg p-4 lg:col-span-1">
                 <h2 class="text-lg font-bold text-red-400 mb-2">Verhoorverslag</h2>
                 <p class="text-xs text-slate-400 mb-4">Leg de bekentenis, ontkenning of opmerkingen van de verdachte formeel vast.</p>
-                
                 <form id="suspect-statement-form" class="flex flex-col flex-1 space-y-4">
                     <div class="flex-1 flex flex-col">
                         <label class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Inhoudelijk Verslag</label>
@@ -247,26 +242,21 @@
                 </form>
             </div>
 
-
-            <!-- Live-feed kolom verdachten met feedbackruimte -->
+            <!-- Live-feed verdachten -->
             <div class="bg-slate-800 rounded-lg border border-slate-700 flex flex-col h-full shadow-lg p-4 lg:col-span-1">
                 <h2 class="text-lg font-bold text-amber-400 mb-1">Verdachten & Feedback</h2>
                 <p class="text-xs text-slate-400 mb-3">Zie hoe collega's de druk opvoeren en geef elkaar juridische feedback.</p>
-                
-                <div id="suspect-live-feed" class="feed-container space-y-4 pr-1">
-                    <!-- Wordt dynamisch gevuld vanuit Firebase -->
-                </div>
+                <div id="suspect-live-feed" class="feed-container space-y-4 pr-1"></div>
             </div>
         </div>
     </div>
 
-
+    <!-- ==================== JAVASCRIPT ==================== -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, push, onChildAdded, update, onChildChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-
-        // NIEUWE Firebase Configuratie[cite: 1]
+        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyCJ5of6K5MRFXMOiEqEyZxZbs1xoJtXuN8",
             authDomain: "pvaangifteinleveren.firebaseapp.com",
@@ -277,26 +267,22 @@
             appId: "1:989190242332:web:40bb7c408441c707835fd9"
         };
 
-
-        // Initialize Firebase[cite: 1]
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
 
-
-        // App Status Variabelen[cite: 1]
+        // Globale variabelen
         let currentStudent = "";
         let currentClass = "";
         let suspect1Selected = false;
         let suspect2Selected = false;
         let cautieGegeven = false;
 
-
-        // DOM Elementen[cite: 1]
+        // DOM-referenties
         const loginScreen = document.getElementById('login-screen');
         const appScreen = document.getElementById('app-screen');
         const opsporingScreen = document.getElementById('opsporing-screen');
         const verhoorScreen = document.getElementById('verhoor-screen');
-        
+
         const loginForm = document.getElementById('login-form');
         const chatMessages = document.getElementById('chat-messages');
         const chatInput = document.getElementById('chat-input');
@@ -306,7 +292,6 @@
         const btnGoToOpsporing = document.getElementById('btn-go-to-opsporing');
         const liveFeed = document.getElementById('live-feed');
         const ttsRateInput = document.getElementById('tts-rate');
-
 
         const btnStartInterrogation = document.getElementById('btn-start-interrogation');
         const btnGiveCautie = document.getElementById('btn-give-cautie');
@@ -318,22 +303,63 @@
         const suspectStatementText = document.getElementById('suspect-statement-text');
         const suspectLiveFeed = document.getElementById('suspect-live-feed');
 
+        // --- RESETFUNCTIE ---
+        function resetApp() {
+            // Stop lopende spraak
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+            // Reset variabelen
+            currentStudent = "";
+            currentClass = "";
+            suspect1Selected = false;
+            suspect2Selected = false;
+            cautieGegeven = false;
+            // Zet UI terug naar login
+            appScreen.classList.add('hidden');
+            opsporingScreen.classList.add('hidden');
+            verhoorScreen.classList.add('hidden');
+            loginScreen.classList.remove('hidden');
+            // Optioneel: velden leegmaken (voorkomt dat oude data zichtbaar blijft)
+            document.getElementById('student-name').value = '';
+            document.getElementById('student-class').value = '';
+            // Reset selectie in opsporing (visueel)
+            document.querySelectorAll('.suspect-card').forEach(c => c.classList.remove('selected', 'border-blue-500', 'bg-blue-950/40'));
+            btnStartInterrogation.setAttribute('disabled', 'true');
+            btnStartInterrogation.classList.add('opacity-50', 'cursor-not-allowed');
+            btnStartInterrogation.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+            btnStartInterrogation.innerText = "🔒 Start Verdachte Verhoor";
+            // Reset cautie
+            cautieGegeven = false;
+            cautieStatus.className = "text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded border border-slate-600 font-semibold";
+            cautieStatus.textContent = "🔴 VERHOOR ACTIEF";
+            btnGiveCautie.removeAttribute('disabled');
+            btnGiveCautie.classList.remove('opacity-50', 'cursor-not-allowed');
+            // Verberg eventuele navigatieknoppen
+            btnGoToOpsporing.classList.add('hidden');
+            // Wis chatberichten (niet verplicht, maar netjes)
+            chatMessages.innerHTML = '';
+            suspectMessages.innerHTML = '';
+            // Voeg initiële boodschap weer toe
+            const initMsg = document.createElement('div');
+            initMsg.className = "bg-slate-700 p-3 rounded-lg max-w-[85%] border border-slate-600";
+            initMsg.innerHTML = `<p class="text-xs text-blue-400 font-semibold mb-1">Yosef</p><p>Hallo... ik ben Yosef. Ik was in die grote bus... Veolis lijn 58. Heel erg schrikken bij die... ja, die Schietbaan. Wat jij willen weten van mij?</p>`;
+            chatMessages.appendChild(initMsg);
+            const initSuspect = document.createElement('div');
+            initSuspect.className = "bg-slate-700 p-3 rounded-lg max-w-[85%] border border-slate-600";
+            initSuspect.innerHTML = `<p class="text-xs text-red-400 font-semibold mb-1">Maikel</p><p>Wat moet je van me? Waarom zit ik hier op het bureau vast? Ik heb helemaal niks gedaan man.</p>`;
+            suspectMessages.appendChild(initSuspect);
+        }
 
-        // Globale functie voor suspect-selectie[cite: 1]
+        // --- SELECTIE FUNCTIE (globaal) ---
         window.selectSuspect = function(daderNummer, cardLetter, isCorrect) {
             document.querySelectorAll(`#opsporing-screen .bg-slate-800:nth-of-type(${daderNummer}) .suspect-card`).forEach(el => {
                 el.classList.remove('selected', 'border-blue-500', 'bg-blue-950/40');
             });
-
-
             const selectedCard = document.getElementById(`suspect-${daderNummer}-${cardLetter}`);
             selectedCard.classList.add('selected', 'border-blue-500', 'bg-blue-950/40');
-
-
             if (daderNummer === 1) suspect1Selected = isCorrect;
             if (daderNummer === 2) suspect2Selected = isCorrect;
-
-
             if (suspect1Selected && suspect2Selected) {
                 btnStartInterrogation.removeAttribute('disabled');
                 btnStartInterrogation.classList.remove('opacity-50', 'cursor-not-allowed');
@@ -347,20 +373,17 @@
             }
         };
 
-
-        // 1. LOGIN LOGICA[cite: 1]
+        // --- LOGIN ---
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             currentStudent = document.getElementById('student-name').value.trim();
             currentClass = document.getElementById('student-class').value;
-
-
             if (currentStudent && currentClass) {
                 document.querySelectorAll('.user-display').forEach(el => el.textContent = currentStudent);
                 document.querySelectorAll('.class-display').forEach(el => el.textContent = currentClass);
                 loginScreen.classList.add('hidden');
                 appScreen.classList.remove('hidden');
-                
+                // OC-melding
                 const ocBubble = document.createElement('div');
                 ocBubble.className = "bg-slate-900/80 p-3 rounded-lg max-w-[90%] border border-amber-500/45 text-xs shadow-md mb-2";
                 ocBubble.innerHTML = `
@@ -379,28 +402,24 @@
             }
         });
 
-
-        // DYNAMISCHE TEXT TO SPEECH[cite: 1]
+        // --- TEXT TO SPEECH ---
         function spreekTekstUit(tekst, spreker) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(tekst);
-                
                 if (spreker === 'Yosef') {
-                    utterance.lang = 'en-GB'; 
-                    utterance.rate = 1.0;     
+                    utterance.lang = 'en-GB';
+                    utterance.rate = 1.0;
                 } else {
-                    utterance.lang = 'nl-NL'; 
-                    utterance.rate = ttsRateInput ? parseFloat(ttsRateInput.value) : 1.1; 
+                    utterance.lang = 'nl-NL';
+                    utterance.rate = ttsRateInput ? parseFloat(ttsRateInput.value) : 1.1;
                 }
-                
-                utterance.pitch = 1.0;    
+                utterance.pitch = 1.0;
                 window.speechSynthesis.speak(utterance);
             }
         }
 
-
-        // 2. CHATBOT LOGICA (Yosef)[cite: 1]
+        // --- GETUIGE CHAT ---
         function genereerGetuigeAntwoord(vraag) {
             const v = vraag.toLowerCase();
             if (v.includes('hoe laat') || v.includes('tijd') || v.includes('wanneer')) {
@@ -433,21 +452,15 @@
             return "Moeilijk woord voor mij... Wat bedoel je? Ik weet over die lange jongen met rode hoodie die die zwangere mevrouw zo hard mishandelde en duwde in bus 58 bij Schietbaan. Vraag over het geweld, de kleding of de mevrouw met grote buik?";
         }
 
-
         function verwerkChatBericht() {
             const tekst = chatInput.value.trim();
             if (!tekst) return;
-
-
             const studentBubble = document.createElement('div');
             studentBubble.className = "bg-blue-600 p-3 rounded-lg max-w-[85%] ml-auto text-right border border-blue-500 shadow-sm";
             studentBubble.innerHTML = `<p class="text-xs text-blue-200 font-semibold mb-1">Jij</p><p>${tekst}</p>`;
             chatMessages.appendChild(studentBubble);
-            
             chatInput.value = "";
             chatMessages.scrollTop = chatMessages.scrollHeight;
-
-
             setTimeout(() => {
                 const getuigeAntwoord = genereerGetuigeAntwoord(tekst);
                 const getuigeBubble = document.createElement('div');
@@ -459,18 +472,14 @@
             }, 800);
         }
 
-
         btnSendChat.addEventListener('click', verwerkChatBericht);
         chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') verwerkChatBericht(); });
 
-
-        // 3. FIREBASE: DATA VERZENDEN[cite: 1]
+        // --- VERKLARING OPSLAAN (getuige) ---
         statementForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const tekst = statementText.value.trim();
             if (!tekst) return;
-
-
             const statementsRef = ref(database, 'statements');
             push(statementsRef, {
                 student: currentStudent,
@@ -479,14 +488,13 @@
                 timestamp: Date.now()
             }).then(() => {
                 alert("Je getuigenverklaring is succesvol opgeslagen! Je kunt nu door naar de opsporingsfase.");
-                btnGoToOpsporing.classList.remove('hidden'); 
+                btnGoToOpsporing.classList.remove('hidden');
             }).catch((error) => {
                 console.error("Fout bij opslaan:", error);
             });
         });
 
-
-        // 4. JURIDISCHE LOGICA: CAUTIE VERLENEN[cite: 1]
+        // --- CAUTIE ---
         btnGiveCautie.addEventListener('click', () => {
             cautieGegeven = true;
             cautieStatus.className = "text-xs bg-emerald-900/60 text-emerald-400 px-2 py-0.5 rounded border border-emerald-700 font-semibold";
@@ -495,8 +503,7 @@
             btnGiveCautie.classList.add('opacity-50', 'cursor-not-allowed');
         });
 
-
-        // 5. CHATBOT LOGICA (Maikel - Verdachte)[cite: 1]
+        // --- VERDACHTE CHAT ---
         function genereerSuspectAntwoord(vraag) {
             const v = vraag.toLowerCase();
             if (v.includes('bekennen') || v.includes('gedaan') || v.includes('gestolen') || v.includes('tas') || v.includes('bus')) {
@@ -511,21 +518,15 @@
             return "Ik zeg verder niks meer over deze onzin. Ik wil gewoon naar huis.";
         }
 
-
         function verwerkSuspectBericht() {
             const tekst = suspectInput.value.trim();
             if (!tekst) return;
-
-
             const studentBubble = document.createElement('div');
             studentBubble.className = "bg-blue-600 p-3 rounded-lg max-w-[85%] ml-auto text-right border border-blue-500 shadow-sm";
             studentBubble.innerHTML = `<p class="text-xs text-blue-200 font-semibold mb-1">Jij</p><p>${tekst}</p>`;
             suspectMessages.appendChild(studentBubble);
-            
             suspectInput.value = "";
             suspectMessages.scrollTop = suspectMessages.scrollHeight;
-
-
             setTimeout(() => {
                 const suspectAntwoord = genereerSuspectAntwoord(tekst);
                 const suspectBubble = document.createElement('div');
@@ -537,17 +538,14 @@
             }, 800);
         }
 
-
         btnSendSuspect.addEventListener('click', verwerkSuspectBericht);
         suspectInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') verwerkSuspectBericht(); });
 
-
+        // --- VERHOORVERSLAG OPSLAAN (verdachte) ---
         suspectStatementForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const tekst = suspectStatementText.value.trim();
             if (!tekst) return;
-
-
             const suspectStatementsRef = ref(database, 'suspect_statements');
             push(suspectStatementsRef, {
                 student: currentStudent,
@@ -561,13 +559,11 @@
             });
         });
 
-
-        // NAVIGATIE ELEMENTEN[cite: 1]
+        // --- NAVIGATIE ---
         btnGoToOpsporing.addEventListener('click', () => {
             appScreen.classList.add('hidden');
             opsporingScreen.classList.remove('hidden');
         });
-
 
         btnStartInterrogation.addEventListener('click', () => {
             opsporingScreen.classList.add('hidden');
@@ -575,21 +571,16 @@
             spreekTekstUit("Wat moet je van me? Waarom zit ik hier op het bureau vast? Ik heb helemaal niks gedaan man.", "Maikel");
         });
 
-
-        // 6. DYNAMISCHE LIVEFEED MET FEEDBACKRUIMTE (REALTIME SYNC)
+        // --- LIVE FEED (getuigen) ---
         function bouwVerklaringCard(pad, uniekeKey, data) {
             const feedContainer = pad === 'statements' ? liveFeed : suspectLiveFeed;
             let cardElement = document.getElementById(`${pad}-${uniekeKey}`);
-            
             if (!cardElement) {
                 cardElement = document.createElement('div');
                 cardElement.id = `${pad}-${uniekeKey}`;
                 cardElement.className = "bg-slate-700 p-3 rounded-lg border border-slate-600 space-y-2 text-xs flex flex-col shadow-sm";
                 feedContainer.appendChild(cardElement);
             }
-
-
-            // Render feedbackberichten van collega's
             let feedbackHtml = "";
             if (data.feedback) {
                 Object.values(data.feedback).forEach(fb => {
@@ -603,23 +594,17 @@
             } else {
                 feedbackHtml = `<p class="text-slate-500 italic text-[11px] p-1">Nog geen feedback gegeven.</p>`;
             }
-
-
             cardElement.innerHTML = `
                 <div class="flex justify-between items-center border-b border-slate-600 pb-1.5 text-[11px] text-slate-400">
                     <span class="font-bold text-emerald-400">${data.student} (${data.klas})</span>
                     <span>${new Date(data.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                 </div>
                 <p class="text-slate-200 bg-slate-900/40 p-2.5 rounded whitespace-pre-wrap leading-relaxed border border-slate-800/50">${data.verklaring}</p>
-                
-                <!-- Feedback Area -->
                 <div class="mt-3 pt-2 border-t border-slate-600/40">
                     <p class="font-semibold text-slate-400 text-[10px] uppercase tracking-wider mb-1">Feedback Ruimte:</p>
                     <div class="space-y-1 max-h-32 overflow-y-auto mb-2 pr-1">
                         ${feedbackHtml}
                     </div>
-                    
-                    <!-- Inline Feedback Formulier -->
                     <div class="flex gap-1.5 mt-2">
                         <input type="text" id="input-${pad}-${uniekeKey}" placeholder="Typ constructieve feedback..." class="flex-1 p-1.5 text-[11px] rounded bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-amber-500">
                         <button onclick="window.verzendFeedback('${pad}', '${uniekeKey}')" class="bg-amber-600 hover:bg-amber-700 px-3 py-1 rounded text-[11px] font-bold text-slate-950 transition shadow-sm">Verstuur</button>
@@ -629,14 +614,10 @@
             feedContainer.scrollTop = feedContainer.scrollHeight;
         }
 
-
-        // Globale functie om feedback op te slaan in Firebase
         window.verzendFeedback = function(pad, uniekeKey) {
             const inputVeld = document.getElementById(`input-${pad}-${uniekeKey}`);
             const feedbackTekst = inputVeld.value.trim();
             if (!feedbackTekst) return;
-
-
             const feedbackLocatie = ref(database, `${pad}/${uniekeKey}/feedback`);
             push(feedbackLocatie, {
                 van: currentStudent || "Anonieme Student",
@@ -649,21 +630,23 @@
             });
         };
 
-
-        // Realtime Database Event Listeners (Getuigen- en verdachteverslagen)
+        // Realtime listeners
         onChildAdded(ref(database, 'statements'), (snapshot) => {
             bouwVerklaringCard('statements', snapshot.key, snapshot.val());
         });
         onChildChanged(ref(database, 'statements'), (snapshot) => {
             bouwVerklaringCard('statements', snapshot.key, snapshot.val());
         });
-
-
         onChildAdded(ref(database, 'suspect_statements'), (snapshot) => {
             bouwVerklaringCard('suspect_statements', snapshot.key, snapshot.val());
         });
         onChildChanged(ref(database, 'suspect_statements'), (snapshot) => {
             bouwVerklaringCard('suspect_statements', snapshot.key, snapshot.val());
+        });
+
+        // --- RESET-KNOP LISTENER ---
+        document.querySelectorAll('.reset-btn').forEach(btn => {
+            btn.addEventListener('click', resetApp);
         });
     </script>
 </body>
