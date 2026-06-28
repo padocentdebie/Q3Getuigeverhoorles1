@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com">
     </script>
     <style>
+        /* Bestaande stijlen */
         .feed-container {
             height: 75vh;
             overflow-y: auto;
@@ -15,6 +16,85 @@
         .suspect-card.selected {
             border-color: #3b82f6;
             background-color: rgba(59, 130, 246, 0.2);
+        }
+
+        /* Nieuwe stijlen voor de logikwis */
+        #puzzle-table {
+            border-collapse: collapse;
+            margin: 20px auto;
+        }
+        #puzzle-table td, #puzzle-table th {
+            border: 1px solid #718096;
+            width: 55px;
+            height: 55px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        #puzzle-table .block-boundary {
+            border-right: 3px solid #2d3748;
+        }
+        #puzzle-table tr.block-boundary td {
+            border-bottom: 3px solid #2d3748;
+        }
+        #puzzle-table .row-header {
+            width: 140px;
+            text-align: right;
+            padding-right: 12px;
+            font-weight: bold;
+            background: #f7fafc;
+        }
+        #puzzle-table .col-header {
+            height: 120px;
+            vertical-align: bottom;
+            border: none;
+        }
+        #puzzle-table .col-header span {
+            transform: rotate(-45deg);
+            display: block;
+            width: 55px;
+            transform-origin: left bottom;
+            margin-left: 25px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        #puzzle-table .cell {
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.4em;
+            user-select: none;
+            position: relative;
+        }
+        #puzzle-table .cell:hover {
+            background: #edf2f7;
+        }
+        #puzzle-table .state-X {
+            color: #e53e3e;
+        }
+        #puzzle-table .state-V {
+            color: #38a169;
+            background: #c6f6d5 !important;
+        }
+        #puzzle-table .clear-btn {
+            display: none;
+            position: absolute;
+            top: 2px;
+            right: 4px;
+            font-size: 11px;
+            color: #a0aec0;
+            cursor: pointer;
+            font-weight: normal;
+        }
+        #puzzle-table .cell:hover .clear-btn {
+            display: block;
+        }
+        #puzzle-table .clear-btn:hover {
+            color: #e53e3e;
+            font-weight: bold;
+        }
+        #puzzle-table td.empty-cell {
+            background: #cbd5e0;
+            border: none;
+            cursor: default;
         }
     </style>
 </head>
@@ -64,7 +144,6 @@
                     Gebruiker: <span class="user-display font-semibold text-emerald-400"></span>
                     (<span class="class-display font-semibold text-emerald-400"></span>)
                 </div>
-                <!-- RESETKNOP -->
                 <button class="reset-btn bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded text-sm font-medium transition shadow-md">Uitloggen</button>
             </div>
         </header>
@@ -251,6 +330,165 @@
         </div>
     </div>
 
+    <!-- ==================== FASE 4: LOGIKWIS ==================== -->
+    <div id="logikwis-screen" class="hidden h-screen flex flex-col bg-slate-900">
+        <header class="bg-slate-800 p-4 border-b border-slate-700 flex justify-between items-center shadow-md">
+            <div>
+                <h1 class="text-xl font-bold text-purple-400">🔍 Logikwis: Dossier Geke</h1>
+                <p class="text-xs text-slate-400">Los de 3×3‑matrix op met de aanwijzingen uit het PV</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="text-sm bg-slate-700 px-3 py-1.5 rounded border border-slate-600">
+                    Gebruiker: <span class="user-display font-semibold text-emerald-400"></span>
+                </div>
+                <button class="reset-btn bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded text-sm font-medium transition shadow-md">Uitloggen</button>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-6 flex justify-center items-start">
+            <div class="w-full max-w-6xl bg-white rounded-xl shadow-2xl p-6 text-slate-800">
+
+                <div id="win-msg" style="display:none; background:#c6f6d5; color:#22543d; padding:18px; border-radius:8px; margin-bottom:25px; font-weight:bold; text-align:center; font-size:1.2em; border:2px solid #38a169;">
+                    🚨 Zaak Opgelost! Alle bewijsstukken, motieven en delicten sluiten naadloos op elkaar aan!
+                </div>
+
+                <div class="clues" style="background:#f7fafc; padding:20px; border-radius:8px; margin-bottom:25px;">
+                    <h3 style="font-weight:bold; margin-bottom:10px;">📋 Dossier‑aanwijzingen (PV Biethe)</h3>
+                    <ul style="list-style:disc; padding-left:20px; line-height:1.6;">
+                        <li>De jongen die verantwoordelijk was voor de <strong>Mishandeling</strong> had via de <strong>WhatsApp‑chat</strong> contact met Geke tot zondagavond.</li>
+                        <li>Het misdrijf dat gepleegd werd vanwege het <strong>Achterstallige geld (€170,-)</strong> is direct gelinkt aan de <strong>Dashcam‑film</strong>.</li>
+                        <li>Verdachte <strong>Anass</strong> is <em>niet</em> de jongen die de ruit vernielde met de <strong>Baksteen</strong>, en hij heeft niks te maken met het drugsmotief.</li>
+                        <li>Het delict waarbij getracht werd de meisjes in de <strong>Auto te trekken</strong>, werd ontdekt toen Frederika <strong>Vapes &amp; Vloei</strong> vond op de kamer van Geke.</li>
+                        <li>Verdachte <strong>Brahim</strong> eiste de <strong>Achterstallige €170,-</strong> op, maar hij was <em>niet</em> degene die de meiden in de auto probeerde te sleuren.</li>
+                        <li>Verdachte <strong>Casper</strong> heeft volgens het onderzoek via de <strong>WhatsApp‑chat</strong> gecommuniceerd, maar is niet gelinkt aan het drugsmotief.</li>
+                    </ul>
+                </div>
+
+                <div class="grid-wrapper" style="overflow-x:auto; background:white; padding:10px 0; border-radius:8px;">
+                    <table id="puzzle-table">
+                        <thead>
+                            <tr>
+                                <th style="border:none; background:none;"></th>
+                                <th class="col-header"><span>Auto‑trekken</span></th>
+                                <th class="col-header"><span>Mishandeling</span></th>
+                                <th class="col-header block-boundary"><span>Baksteen</span></th>
+                                <th class="col-header"><span>Achterstallig</span></th>
+                                <th class="col-header"><span>Drugsgebruik</span></th>
+                                <th class="col-header block-boundary"><span>Wapens‑check</span></th>
+                                <th class="col-header"><span>Dashcam‑film</span></th>
+                                <th class="col-header"><span>WhatsApp‑chat</span></th>
+                                <th class="col-header"><span>Vapes &amp; Vloei</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rij 1: Anass -->
+                            <tr data-row="Anass">
+                                <td class="row-header">Anass</td>
+                                <td class="cell" data-col="Auto-trekken" data-rgroup="verdachten" data-cgroup="delicten"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="Mishandeling" data-rgroup="verdachten" data-cgroup="delicten"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell block-boundary" data-col="Baksteen" data-rgroup="verdachten" data-cgroup="delicten"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="Achterstallig" data-rgroup="verdachten" data-cgroup="motieven"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="Drugsgebruik" data-rgroup="verdachten" data-cgroup="motieven"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell block-boundary" data-col="Wapens-check" data-rgroup="verdachten" data-cgroup="motieven"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="Dashcam-film" data-rgroup="verdachten" data-cgroup="bewijs"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="WhatsApp-chat" data-rgroup="verdachten" data-cgroup="bewijs"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="Vapes & Vloei" data-rgroup="verdachten" data-cgroup="bewijs"><span class="clear-btn">x</span><span class="content"></span></td>
+                            </tr>
+                            <!-- Rij 2: Brahim -->
+                            <tr data-row="Brahim">
+                                <td class="row-header">Brahim</td>
+                                <td class="cell" data-col="Auto-trekken" data-rgroup="verdachten" data-cgroup="delicten"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="Mishandeling" data-rgroup="verdachten" data-cgroup="delicten"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell block-boundary" data-col="Baksteen" data-rgroup="verdachten" data-cgroup="delicten"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="Achterstallig" data-rgroup="verdachten" data-cgroup="motieven"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="Drugsgebruik" data-rgroup="verdachten" data-cgroup="motieven"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell block-boundary" data-col="Wapens-check" data-rgroup="verdachten" data-cgroup="motieven"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="Dashcam-film" data-rgroup="verdachten" data-cgroup="bewijs"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="WhatsApp-chat" data-rgroup="verdachten" data-cgroup="bewijs"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="Vapes & Vloei" data-rgroup="verdachten" data-cgroup="bewijs"><span class="clear-btn">x</span><span class="content"></span></td>
+                            </tr>
+                            <!-- Rij 3: Casper -->
+                            <tr class="block-boundary" data-row="Casper">
+                                <td class="row-header">Casper</td>
+                                <td class="cell" data-col="Auto-trekken" data-rgroup="verdachten" data-cgroup="delicten"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="Mishandeling" data-rgroup="verdachten" data-cgroup="delicten"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell block-boundary" data-col="Baksteen" data-rgroup="verdachten" data-cgroup="delicten"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="Achterstallig" data-rgroup="verdachten" data-cgroup="motieven"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="Drugsgebruik" data-rgroup="verdachten" data-cgroup="motieven"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell block-boundary" data-col="Wapens-check" data-rgroup="verdachten" data-cgroup="motieven"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="Dashcam-film" data-rgroup="verdachten" data-cgroup="bewijs"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="WhatsApp-chat" data-rgroup="verdachten" data-cgroup="bewijs"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="Vapes & Vloei" data-rgroup="verdachten" data-cgroup="bewijs"><span class="clear-btn">x</span><span class="content"></span></td>
+                            </tr>
+                            <!-- Rij 4: Dashcam-film -->
+                            <tr data-row="Dashcam-film">
+                                <td class="row-header">Dashcam-film</td>
+                                <td class="cell" data-col="Auto-trekken" data-rgroup="bewijs" data-cgroup="delicten"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="Mishandeling" data-rgroup="bewijs" data-cgroup="delicten"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell block-boundary" data-col="Baksteen" data-rgroup="bewijs" data-cgroup="delicten"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="Achterstallig" data-rgroup="bewijs" data-cgroup="motieven"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="Drugsgebruik" data-rgroup="bewijs" data-cgroup="motieven"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell block-boundary" data-col="Wapens-check" data-rgroup="bewijs" data-cgroup="motieven"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td colspan="3" class="empty-cell" style="background:#cbd5e0; border:none; cursor:default;"></td>
+                            </tr>
+                            <!-- Rij 5: WhatsApp-chat -->
+                            <tr data-row="WhatsApp-chat">
+                                <td class="row-header">WhatsApp-chat</td>
+                                <td class="cell" data-col="Auto-trekken" data-rgroup="bewijs" data-cgroup="delicten"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="Mishandeling" data-rgroup="bewijs" data-cgroup="delicten"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell block-boundary" data-col="Baksteen" data-rgroup="bewijs" data-cgroup="delicten"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="Achterstallig" data-rgroup="bewijs" data-cgroup="motieven"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="Drugsgebruik" data-rgroup="bewijs" data-cgroup="motieven"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell block-boundary" data-col="Wapens-check" data-rgroup="bewijs" data-cgroup="motieven"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td colspan="3" class="empty-cell" style="background:#cbd5e0; border:none; cursor:default;"></td>
+                            </tr>
+                            <!-- Rij 6: Vapes & Vloei -->
+                            <tr class="block-boundary" data-row="Vapes & Vloei">
+                                <td class="row-header">Vapes & Vloei</td>
+                                <td class="cell" data-col="Auto-trekken" data-rgroup="bewijs" data-cgroup="delicten"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="Mishandeling" data-rgroup="bewijs" data-cgroup="delicten"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell block-boundary" data-col="Baksteen" data-rgroup="bewijs" data-cgroup="delicten"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="Achterstallig" data-rgroup="bewijs" data-cgroup="motieven"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="Drugsgebruik" data-rgroup="bewijs" data-cgroup="motieven"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell block-boundary" data-col="Wapens-check" data-rgroup="bewijs" data-cgroup="motieven"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td colspan="3" class="empty-cell" style="background:#cbd5e0; border:none; cursor:default;"></td>
+                            </tr>
+                            <!-- Rij 7: Achterstallig -->
+                            <tr data-row="Achterstallig">
+                                <td class="row-header">Achterstallig</td>
+                                <td class="cell" data-col="Auto-trekken" data-rgroup="motieven" data-cgroup="delicten"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="Mishandeling" data-rgroup="motieven" data-cgroup="delicten"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell block-boundary" data-col="Baksteen" data-rgroup="motieven" data-cgroup="delicten"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td colspan="6" class="empty-cell" style="background:#cbd5e0; border:none; cursor:default;"></td>
+                            </tr>
+                            <!-- Rij 8: Drugsgebruik -->
+                            <tr data-row="Drugsgebruik">
+                                <td class="row-header">Drugsgebruik</td>
+                                <td class="cell" data-col="Auto-trekken" data-rgroup="motieven" data-cgroup="delicten"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="Mishandeling" data-rgroup="motieven" data-cgroup="delicten"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell block-boundary" data-col="Baksteen" data-rgroup="motieven" data-cgroup="delicten"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td colspan="6" class="empty-cell" style="background:#cbd5e0; border:none; cursor:default;"></td>
+                            </tr>
+                            <!-- Rij 9: Wapens-check -->
+                            <tr data-row="Wapens-check">
+                                <td class="row-header">Wapens-check</td>
+                                <td class="cell" data-col="Auto-trekken" data-rgroup="motieven" data-cgroup="delicten"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell" data-col="Mishandeling" data-rgroup="motieven" data-cgroup="delicten"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td class="cell block-boundary" data-col="Baksteen" data-rgroup="motieven" data-cgroup="delicten"><span class="clear-btn">x</span><span class="content"></span></td>
+                                <td colspan="6" class="empty-cell" style="background:#cbd5e0; border:none; cursor:default;"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="btn-container" style="text-align:center; margin-top:20px;">
+                        <button id="reset-puzzle-btn" class="reset-btn" style="background-color:#e53e3e; color:white; border:none; padding:12px 24px; font-size:1em; font-weight:bold; border-radius:6px; cursor:pointer; transition:background 0.2s;">Wis Volledige Puzzel</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <!-- ==================== JAVASCRIPT ==================== -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -282,6 +520,7 @@
         const appScreen = document.getElementById('app-screen');
         const opsporingScreen = document.getElementById('opsporing-screen');
         const verhoorScreen = document.getElementById('verhoor-screen');
+        const logikwisScreen = document.getElementById('logikwis-screen');
 
         const loginForm = document.getElementById('login-form');
         const chatMessages = document.getElementById('chat-messages');
@@ -319,8 +558,9 @@
             appScreen.classList.add('hidden');
             opsporingScreen.classList.add('hidden');
             verhoorScreen.classList.add('hidden');
+            logikwisScreen.classList.add('hidden');
             loginScreen.classList.remove('hidden');
-            // Optioneel: velden leegmaken (voorkomt dat oude data zichtbaar blijft)
+            // Reset velden
             document.getElementById('student-name').value = '';
             document.getElementById('student-class').value = '';
             // Reset selectie in opsporing (visueel)
@@ -335,12 +575,11 @@
             cautieStatus.textContent = "🔴 VERHOOR ACTIEF";
             btnGiveCautie.removeAttribute('disabled');
             btnGiveCautie.classList.remove('opacity-50', 'cursor-not-allowed');
-            // Verberg eventuele navigatieknoppen
+            // Verberg navigatieknoppen
             btnGoToOpsporing.classList.add('hidden');
-            // Wis chatberichten (niet verplicht, maar netjes)
+            // Wis chatberichten en zet initiële berichten terug
             chatMessages.innerHTML = '';
             suspectMessages.innerHTML = '';
-            // Voeg initiële boodschap weer toe
             const initMsg = document.createElement('div');
             initMsg.className = "bg-slate-700 p-3 rounded-lg max-w-[85%] border border-slate-600";
             initMsg.innerHTML = `<p class="text-xs text-blue-400 font-semibold mb-1">Yosef</p><p>Hallo... ik ben Yosef. Ik was in die grote bus... Veolis lijn 58. Heel erg schrikken bij die... ja, die Schietbaan. Wat jij willen weten van mij?</p>`;
@@ -349,6 +588,13 @@
             initSuspect.className = "bg-slate-700 p-3 rounded-lg max-w-[85%] border border-slate-600";
             initSuspect.innerHTML = `<p class="text-xs text-red-400 font-semibold mb-1">Maikel</p><p>Wat moet je van me? Waarom zit ik hier op het bureau vast? Ik heb helemaal niks gedaan man.</p>`;
             suspectMessages.appendChild(initSuspect);
+            // Reset de puzzel (wis alle vinkjes)
+            const allCells = document.querySelectorAll('#puzzle-table .cell');
+            allCells.forEach(cell => {
+                cell.classList.remove('state-X', 'state-V');
+                cell.querySelector('.content').innerText = '';
+            });
+            document.getElementById('win-msg').style.display = 'none';
         }
 
         // --- SELECTIE FUNCTIE (globaal) ---
@@ -541,7 +787,7 @@
         btnSendSuspect.addEventListener('click', verwerkSuspectBericht);
         suspectInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') verwerkSuspectBericht(); });
 
-        // --- VERHOORVERSLAG OPSLAAN (verdachte) ---
+        // --- VERHOORVERSLAG OPSLAAN (verdachte) & DOORVERWIJZEN NAAR LOGIKWIS ---
         suspectStatementForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const tekst = suspectStatementText.value.trim();
@@ -553,7 +799,16 @@
                 verklaring: tekst,
                 timestamp: Date.now()
             }).then(() => {
-                alert("Het verhoorverslag van de verdachte is succesvol opgeslagen!");
+                // Navigeer naar de logikwis
+                verhoorScreen.classList.add('hidden');
+                logikwisScreen.classList.remove('hidden');
+                // Initialiseer de puzzel events (één keer)
+                if (!window._puzzleInitialized) {
+                    initPuzzleEvents();
+                    window._puzzleInitialized = true;
+                }
+                // Scroll naar boven
+                logikwisScreen.scrollTop = 0;
             }).catch((error) => {
                 console.error("Fout bij opslaan verhoorverslag:", error);
             });
@@ -643,6 +898,121 @@
         onChildChanged(ref(database, 'suspect_statements'), (snapshot) => {
             bouwVerklaringCard('suspect_statements', snapshot.key, snapshot.val());
         });
+
+        // ========== LOGIKWIS ==========
+        // Oplossing (sluitende controle)
+        const puzzleSolution = {
+            "Anass": ["Mishandeling", "Wapens-check", "WhatsApp-chat"],
+            "Brahim": ["Baksteen", "Achterstallig", "Dashcam-film"],
+            "Casper": ["Auto-trekken", "Drugsgebruik", "Vapes & Vloei"],
+            "Dashcam-film": ["Baksteen", "Achterstallig"],
+            "WhatsApp-chat": ["Mishandeling", "Wapens-check"],
+            "Vapes & Vloei": ["Auto-trekken", "Drugsgebruik"],
+            "Achterstallig": ["Baksteen"],
+            "Drugsgebruik": ["Auto-trekken"],
+            "Wapens-check": ["Mishandeling"]
+        };
+
+        function initPuzzleEvents() {
+            const cells = document.querySelectorAll('#puzzle-table .cell');
+            cells.forEach(cell => {
+                // Verwijder event listeners die via onclick waren toegevoegd (geen, want we hebben ze verwijderd)
+                // Voeg click listener toe
+                cell.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('clear-btn')) return;
+                    cycleState(this);
+                });
+                const clearBtn = cell.querySelector('.clear-btn');
+                if (clearBtn) {
+                    clearBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        clearCell(this.parentElement);
+                    });
+                }
+            });
+            document.getElementById('reset-puzzle-btn').addEventListener('click', resetPuzzle);
+        }
+
+        function cycleState(cell) {
+            const contentSpan = cell.querySelector('.content');
+            if (!contentSpan) return;
+
+            if (!cell.classList.contains('state-X') && !cell.classList.contains('state-V')) {
+                cell.classList.add('state-X');
+                contentSpan.innerText = 'X';
+            } else if (cell.classList.contains('state-X')) {
+                cell.classList.remove('state-X');
+                cell.classList.add('state-V');
+                contentSpan.innerText = 'V';
+                autoCross(cell);
+            } else {
+                cell.classList.remove('state-V');
+                contentSpan.innerText = '';
+            }
+            checkWin();
+        }
+
+        function clearCell(cell) {
+            cell.classList.remove('state-X', 'state-V');
+            cell.querySelector('.content').innerText = '';
+            checkWin();
+        }
+
+        function autoCross(vinkjeCell) {
+            const rgroup = vinkjeCell.dataset.rgroup;
+            const cgroup = vinkjeCell.dataset.cgroup;
+            const rowName = vinkjeCell.parentElement.dataset.row;
+            const colName = vinkjeCell.dataset.col;
+
+            const allCells = document.querySelectorAll('#puzzle-table .cell');
+            allCells.forEach(c => {
+                if (c !== vinkjeCell && c.dataset.rgroup === rgroup && c.dataset.cgroup === cgroup) {
+                    if (c.parentElement.dataset.row === rowName || c.dataset.col === colName) {
+                        if (!c.classList.contains('state-V')) {
+                            c.classList.remove('state-X');
+                            c.classList.add('state-X');
+                            c.querySelector('.content').innerText = 'X';
+                        }
+                    }
+                }
+            });
+        }
+
+        function resetPuzzle() {
+            if (confirm("Weet je zeker dat je de hele puzzel wilt wissen?")) {
+                const allCells = document.querySelectorAll('#puzzle-table .cell');
+                allCells.forEach(cell => {
+                    cell.classList.remove('state-X', 'state-V');
+                    cell.querySelector('.content').innerText = '';
+                });
+                document.getElementById('win-msg').style.display = 'none';
+            }
+        }
+
+        function checkWin() {
+            let correctVinkjes = 0;
+            let falseVinkjes = 0;
+            const allCells = document.querySelectorAll('#puzzle-table .cell');
+
+            allCells.forEach(cell => {
+                if (cell.classList.contains('state-V')) {
+                    const rowName = cell.parentElement.dataset.row;
+                    const colName = cell.dataset.col;
+                    if (puzzleSolution[rowName] && puzzleSolution[rowName].includes(colName)) {
+                        correctVinkjes++;
+                    } else {
+                        falseVinkjes++;
+                    }
+                }
+            });
+
+            if (correctVinkjes === 18 && falseVinkjes === 0) {
+                document.getElementById('win-msg').style.display = 'block';
+                logikwisScreen.scrollTop = 0;
+            } else {
+                document.getElementById('win-msg').style.display = 'none';
+            }
+        }
 
         // --- RESET-KNOP LISTENER ---
         document.querySelectorAll('.reset-btn').forEach(btn => {
